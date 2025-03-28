@@ -1,10 +1,11 @@
-package model;
+package ru.cherry.itask;
 
-import service.Epic;
-import service.SubTask;
-import service.Task;
+import ru.cherry.itask.service.TaskManager;
+import ru.cherry.itask.model.Epic;
+import ru.cherry.itask.model.SubTask;
+import ru.cherry.itask.model.Task;
 
-import static service.Task.Status.*;
+import static ru.cherry.itask.model.Task.Status.*;
 
 public class Main {
     public static void main(String[] args) {

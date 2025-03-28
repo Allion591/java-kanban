@@ -1,7 +1,8 @@
-package model;
-import service.Epic;
-import service.SubTask;
-import service.Task;
+package ru.cherry.itask.service;
+
+import ru.cherry.itask.model.Epic;
+import ru.cherry.itask.model.SubTask;
+import ru.cherry.itask.model.Task;
 
 import java.util.*;
 
@@ -20,31 +21,19 @@ public class TaskManager {
 
 
     //----------------Получение списка всех задач.---------------○------
-    List<Task> getAllTasksOfTask() {
-        List<Task> listForTasks = new ArrayList<>();
-        for (Task task : saveTasks.values()) {
-            listForTasks.add(task);
-        }
-        return listForTasks;
+    public List<Task> getAllTasksOfTask() {
+        return new ArrayList<>(saveTasks.values());
     }
 
-    List<Epic> getAllTasksOfEpic() {
+    public List<Epic> getAllTasksOfEpic() {
         for (int epicKey : saveEpicTasks.keySet()) {
             checkEpicStatus(epicKey);
         }
-        List<Epic> listForEpicTasks = new ArrayList<>();
-        for (Epic epic : saveEpicTasks.values()) {
-            listForEpicTasks.add(epic);
-        }
-        return listForEpicTasks;
+        return new ArrayList<>(saveEpicTasks.values());
     }
 
-    List<SubTask> getAllTasksOfSubTask() {
-        List<SubTask> listForSubTasks = new ArrayList<>();
-        for (SubTask subTask : saveSubTasks.values()) {
-            listForSubTasks.add(subTask);
-        }
-        return listForSubTasks;
+    public List<SubTask> getAllTasksOfSubTask() {
+        return new ArrayList<>(saveSubTasks.values());
     }
     //------------------------------------------------------------------
 
@@ -83,20 +72,20 @@ public class TaskManager {
 
 
     //-----------Создание задач--------------------------------
-    void createTask(Task task) {
+    public void createTask(Task task) {
         int newIdForTask = taskCount();
         task.setID(newIdForTask);
         saveTasks.put(newIdForTask, task);
     }
 
-    Epic createEpicTask(Epic epic) {
+    public Epic createEpicTask(Epic epic) {
         int newIdForEpic = taskCount();
         epic.setID(newIdForEpic);
         saveEpicTasks.put(newIdForEpic, epic);
         return epic;
     }
 
-    SubTask createSubTask(SubTask subTask) {
+    public SubTask createSubTask(SubTask subTask) {
         int epicId = subTask.getEpicId();
         int newIdForSubtask = taskCount();
 
@@ -127,11 +116,11 @@ public class TaskManager {
     //-----------------------------------------------------
 
     //-----Удаление задачи по идентификатору---------------
-    void removeOnIdTask(int id) {
+    public void removeOnIdTask(int id) {
         saveTasks.remove(id);
     }
 
-    void removeOnIdEpicTask(int id) {
+    public void removeOnIdEpicTask(int id) {
         Epic epic = getIdTaskOfEpic(id);
         List<Integer> removeList = epic.getSubtasksIDs();
         if (removeList.isEmpty()) {

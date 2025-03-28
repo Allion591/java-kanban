@@ -1,4 +1,4 @@
-package service;
+package ru.cherry.itask.model;
 
 public class SubTask extends Task {
     private final int epicId;
