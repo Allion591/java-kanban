@@ -13,6 +13,13 @@ public class SubTask extends Task {
     }
 
     @Override
+    public SubTask copy() {
+        SubTask copy = new SubTask(this.getTaskName(), this.getDetails(), this.getStatus(), this.epicId);
+        copy.setID(this.getID());
+        return copy;
+    }
+
+    @Override
     public String toString() {
         return "Task{" +
                 "ID=" + getID() +
