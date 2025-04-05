@@ -12,7 +12,7 @@ public class Epic extends Task {
     }
 
     public List<Integer> getSubtasksIDs() {
-        return listSaveSubTasksNum;
+        return new ArrayList<>(listSaveSubTasksNum);
     }
 
     public void addSubtaskId(int idSubTask) {
@@ -24,14 +24,14 @@ public class Epic extends Task {
     public Epic copy() {
         Epic copy = new Epic(this.getTaskName(), this.getDetails());
         copy.setID(this.getID());
-        copy.getSubtasksIDs().addAll(this.listSaveSubTasksNum);
+        copy.listSaveSubTasksNum.addAll(this.listSaveSubTasksNum);
         copy.setStatus(this.getStatus());
         return copy;
     }
 
     @Override
     public String toString() {
-        return "Task{" +
+        return "Epic{" +
                 "ID=" + getID() +
                 ", taskName='" + getTaskName() + '\'' +
                 ", details='" + getDetails() + '\'' +

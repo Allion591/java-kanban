@@ -43,11 +43,11 @@ public interface TaskManager {
     void updateSubTask(SubTask subTask);
 
     //-----Удаление задачи по идентификатору---------------
-    void removeOnIdTask(int id);
+    void removeTaskById(int id);
 
-    void removeOnIdEpicTask(int id);
+    void removeEpicTaskById(int id);
 
-    void removeOnIdSubTask(int id);
+    void removeSubTaskById(int id);
 
     //------------Управление статусом задачи----------------------------------------------
     void setNewStatusOfTask(Task task);

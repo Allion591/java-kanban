@@ -59,12 +59,13 @@ public class Main {
         System.out.println(taskManager.getAllTasksOfEpic());
         System.out.println();
 
-        taskManager.removeOnIdTask(task1.getID());
-        taskManager.removeOnIdEpicTask(epic1.getID());
+        taskManager.removeTaskById(task1.getID());
+        taskManager.removeEpicTaskById(epic1.getID());
 
         System.out.println(taskManager.getAllTasksOfSubTask());
         System.out.println(taskManager.getAllTasksOfTask());
         System.out.println(taskManager.getAllTasksOfEpic());
+        System.out.println();
 
         System.out.println(taskManager.getTaskByIdOfEpic(5));
         System.out.println(taskManager.getTaskById(1));

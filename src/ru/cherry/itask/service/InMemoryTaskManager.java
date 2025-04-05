@@ -142,12 +142,12 @@ public class InMemoryTaskManager implements TaskManager {
 
     //-----Удаление задачи по идентификатору---------------
     @Override
-    public void removeOnIdTask(int id) {
+    public void removeTaskById(int id) {
         saveTasks.remove(id);
     }
 
     @Override
-    public void removeOnIdEpicTask(int id) {
+    public void removeEpicTaskById(int id) {
         Epic epic = getTaskByIdOfEpic(id);
         List<Integer> removeList = epic.getSubtasksIDs();
         if (removeList.isEmpty()) {
@@ -161,7 +161,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void removeOnIdSubTask(int id) {
+    public void removeSubTaskById(int id) {
         List<Integer> newValueSubTasks;
         SubTask subTask = getTaskByIdOfSubTask(id);
         int numEpic = subTask.getEpicId();
