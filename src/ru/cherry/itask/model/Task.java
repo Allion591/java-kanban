@@ -62,8 +62,8 @@ public class Task {
         return idOfTask;
     }
 
-    public void setID(int IdTask) {
-        this.idOfTask = IdTask;
+    public void setID(int idOfTask) {
+        this.idOfTask = idOfTask;
     }
 
     @Override
