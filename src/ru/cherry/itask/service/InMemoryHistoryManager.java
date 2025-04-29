@@ -21,8 +21,6 @@ public class InMemoryHistoryManager implements HistoryManager {
         public String toString() {
             return "Node{" +
                     "task=" + task +
-                    ", prev=" + prev +
-                    ", next=" + next +
                     '}';
         }
     }
@@ -80,6 +78,8 @@ public class InMemoryHistoryManager implements HistoryManager {
         } else {
             tail = node.prev;
         }
+        node.prev = null;
+        node.next = null;
     }
 
     @Override
