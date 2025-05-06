@@ -3,7 +3,7 @@ package ru.cherry.itask.model;
 import java.util.Objects;
 
 public class Task {
-    private int ID;
+    private int id;
     private final String taskName;
     private String details;
     private Status status;
@@ -18,17 +18,17 @@ public class Task {
     public boolean equals(Object object) {
         if (object == null || getClass() != object.getClass()) return false;
         Task task = (Task) object;
-        return ID == task.ID && Objects.equals(taskName, task.taskName) && Objects.equals(details, task.details) && status == task.status;
+        return id == task.id && Objects.equals(taskName, task.taskName) && Objects.equals(details, task.details) && status == task.status;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(ID, taskName, details, status);
+        return Objects.hash(id, taskName, details, status);
     }
 
     public Task copy() {
         Task copy = new Task(this.taskName, this.details, this.status);
-        copy.setID(this.ID);
+        copy.setID(this.id);
         return copy;
     }
 
@@ -59,17 +59,17 @@ public class Task {
     }
 
     public int getID() {
-        return ID;
+        return id;
     }
 
-    public void setID(int ID) {
-        this.ID = ID;
+    public void setID(int id) {
+        this.id = id;
     }
 
     @Override
     public String toString() {
         return "Task{" +
-                "ID=" + ID +
+                "idOfTask=" + id +
                 ", taskName='" + taskName + '\'' +
                 ", details='" + details + '\'' +
                 ", status=" + status +

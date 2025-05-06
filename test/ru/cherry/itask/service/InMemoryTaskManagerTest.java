@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import ru.cherry.itask.model.Epic;
 import ru.cherry.itask.model.SubTask;
 import ru.cherry.itask.model.Task;
-
+import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 class InMemoryTaskManagerTest {
@@ -95,5 +95,53 @@ class InMemoryTaskManagerTest {
         assertEquals(Task.Status.IN_PROGRESS, manager.getTaskById(task.getID()).getStatus());
         assertEquals(Task.Status.DONE, manager.getTaskByIdOfSubTask(subTask.getID()).getStatus());
         assertEquals(details, manager.getTaskByIdOfEpic(epic.getID()).getDetails());
+    }
+
+    @Test
+    void shouldAddTaskToHistoryWhenRetrieved() {
+        Task task = new Task("Test", "Details", Task.Status.NEW);
+        manager.createTask(task);
+        manager.getTaskById(task.getID());
+
+        List<Task> history = manager.getHistory();
+        assertEquals(1, history.size(), "Задача не добавлена в историю");
+        assertEquals(task.getID(), history.get(0).getID(), "Неверная задача в истории");
+    }
+
+    @Test
+    void shouldRemoveTaskFromHistoryWhenDeleted() {
+        Task task = new Task("Test", "Details", Task.Status.NEW);
+        manager.createTask(task);
+        int taskID = task.getID();
+        manager.getTaskById(taskID);
+        manager.removeTaskById(taskID);
+
+        assertTrue(manager.getHistory().isEmpty(), "Задача не удалена из истории");
+    }
+
+    @Test
+    void epicShouldNotContainRemovedSubtaskId() {
+        Epic epic = new Epic("Epic", "Details");
+        manager.createEpicTask(epic);
+        SubTask subTask = new SubTask("Sub", "Details", Task.Status.NEW, epic.getID());
+        manager.createSubTask(subTask);
+
+        int subtaskId = subTask.getID();
+        manager.removeSubTaskById(subtaskId);
+
+        assertFalse(epic.getSubtasksIDs().contains(subtaskId), "ID подзадачи остался в эпике");
+    }
+
+    @Test
+    void changingTaskIdShouldNotAffectManager() {
+        Task task = new Task("Test", "Details", Task.Status.NEW);
+        manager.createTask(task);
+        int originId = task.getID();
+
+        task.setID(666);
+        Task retivedTask = manager.getTaskById(originId);
+
+        assertNotNull(retivedTask, "Задача должнеа быть доступна по оригинальному ID");
+        assertNull(manager.getTaskById(666), "Не должно быть задачи сновым ID");
     }
 }

@@ -20,6 +20,11 @@ public class Epic extends Task {
             listSaveSubTasksNum.add(idSubTask);
         }
     }
+
+    public void removeSubtaskId(int id) {
+        listSaveSubTasksNum.remove(Integer.valueOf(id));
+    }
+
     @Override
     public Epic copy() {
         Epic copy = new Epic(this.getTaskName(), this.getDetails());

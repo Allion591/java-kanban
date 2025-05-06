@@ -1,12 +1,9 @@
 package ru.cherry.itask.model;
 
 import org.junit.jupiter.api.Test;
-import ru.cherry.itask.service.InMemoryTaskManager;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 class EpicTest {
-    InMemoryTaskManager inMemoryTaskManager = new InMemoryTaskManager();
 
     @Test
     void tasksAreEqualIfTheirIDIsEqual() {
