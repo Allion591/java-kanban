@@ -13,7 +13,7 @@ import java.nio.file.Path;
 public class FileBackedTaskManager extends InMemoryTaskManager {
     private Path dir;
 
-    enum taskTypes {
+    enum TaskTypes {
         Task,
         Epic,
         SubTask
@@ -43,7 +43,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     private Task fromString(String value) {
         String[] tasksElements = value.split(",");
         int oldId = Integer.parseInt(tasksElements[0]);
-        taskTypes type = taskTypes.valueOf(tasksElements[1]);
+        TaskTypes type = TaskTypes.valueOf(tasksElements[1]);
         String name = tasksElements[2];
         Task.Status status = Task.Status.valueOf(tasksElements[3]);
         String details = tasksElements[4];
@@ -98,7 +98,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
                 Task task = manager.fromString(line);
                 if (task != null) {
-                    taskTypes type = taskTypes.valueOf(task.getClass().getSimpleName());
+                    TaskTypes type = TaskTypes.valueOf(task.getClass().getSimpleName());
 
                     switch (type) {
                         case Task:
