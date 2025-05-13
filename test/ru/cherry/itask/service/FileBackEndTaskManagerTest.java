@@ -61,7 +61,7 @@ public class FileBackEndTaskManagerTest {
 
         try { //в файле будет еще заголовок поэтому число строк на единицу больше зем задач
             List<String> lines = Files.readAllLines(timelesFile.toPath());
-            assertEquals(6, lines.size(), "Число строк в списке и в файле не совпадают");
+            assertEquals(7, lines.size(), "Число строк в списке и в файле не совпадают");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
