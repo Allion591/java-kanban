@@ -12,7 +12,7 @@ public class InMemoryTaskManager implements TaskManager {
     private final HashMap<Integer, Task> saveTasks = new HashMap<>();
     private final HashMap<Integer, Epic> saveEpicTasks = new HashMap<>();
     private final HashMap<Integer, SubTask> saveSubTasks = new HashMap<>();
-    private final HistoryManager historyManager = managers.getDefaultHistory();
+    protected final HistoryManager historyManager = managers.getDefaultHistory();
 
 
     //---------Счетчик всех задач---------------
