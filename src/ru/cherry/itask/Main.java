@@ -27,19 +27,31 @@ public class Main {
         Epic epic1 = new Epic("Упростить формирование ID", "Убрать установку в конст-ре");
         fileManager.createEpicTask(epic1);
 
-        SubTask subTask1 = new SubTask("Работа с Эпик", "Добавить лист", NEW, epic1.getID());
-        fileManager.createSubTask(subTask1);
-
-        SubTask subTask2 = new SubTask("Работа с Эпик", "Добавить лист", NEW, epic1.getID());
-        fileManager.createSubTask(subTask2);
-
         Epic epic2 = new Epic("Упростить формирование ID", "Убрать установку в конст-ре");
         fileManager.createEpicTask(epic2);
 
+        SubTask subTask1 = new SubTask("Работа с Эпик", "Добавить лист", NEW, epic2.getID());
+        fileManager.createSubTask(subTask1);
+
+        SubTask subTask2 = new SubTask("Работа с Эпик", "Добавить лист", NEW, epic2.getID());
+        fileManager.createSubTask(subTask2);
+
         FileBackedTaskManager loadedManager = FileBackedTaskManager.loadFromFile(saveFile);
 
-        System.out.println(loadedManager.getAllTasksOfTask());
-        System.out.println(loadedManager.getAllTasksOfEpic());
-        System.out.println(loadedManager.getAllTasksOfSubTask());
+        for (Task task : loadedManager.getAllTasksOfTask()) {
+            System.out.println(task);
+        }
+        for (Epic epic : loadedManager.getAllTasksOfEpic()) {
+            System.out.println(epic);
+        }
+        for (SubTask subTask : loadedManager.getAllTasksOfSubTask()) {
+            System.out.println(subTask);
+        }
+        loadedManager.removeEpicTaskById(task1.getID());
+        System.out.println("History");
+
+        for (Task task : loadedManager.getHistory()) {
+            System.out.println(task);
+        }
     }
     }
