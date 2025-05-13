@@ -7,18 +7,45 @@ public class Task {
     private final String taskName;
     private String details;
     private Status status;
+    protected TaskTypes taskType;
 
     public Task(String taskName, String details, Status status) {
         this.taskName = taskName;
         this.details = details;
         this.status = status;
+        this.taskType = TaskTypes.TASK;
+    }
+
+    public String toCsv() {
+        return String.format("%d,%s,%s,%s,%s", id, taskType, taskName, status, details);
+    }
+
+    public static Task fromCsv(String value) {
+        String[] tasksElements = value.split(",");
+        TaskTypes type = TaskTypes.valueOf(tasksElements[1]);
+        String name = tasksElements[2];
+        Status status = Status.valueOf(tasksElements[3]);
+        String details = tasksElements[4];
+
+        switch (type) {
+            case TASK:
+                return new Task(name, details, status);
+            case EPIC:
+                return new Epic(name, details);
+            case SUBTASK:
+                int epicId = Integer.parseInt(tasksElements[5]);
+                return new SubTask(name, details, status, epicId);
+            default:
+                return null;
+        }
     }
 
     @Override
     public boolean equals(Object object) {
         if (object == null || getClass() != object.getClass()) return false;
         Task task = (Task) object;
-        return id == task.id && Objects.equals(taskName, task.taskName) && Objects.equals(details, task.details) && status == task.status;
+        return id == task.id && Objects.equals(taskName, task.taskName) && Objects.equals(details, task.details) &&
+                status == task.status;
     }
 
     @Override
@@ -36,6 +63,16 @@ public class Task {
         NEW,
         IN_PROGRESS,
         DONE
+    }
+
+    public enum TaskTypes {
+        TASK,
+        EPIC,
+        SUBTASK
+    }
+
+    public TaskTypes getTaskTypes() {
+        return taskType;
     }
 
     public void setStatus(Status status) {
