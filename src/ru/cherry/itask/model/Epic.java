@@ -6,9 +6,11 @@ import java.util.List;
 public class Epic extends Task {
     private final List<Integer> listSaveSubTasksNum;
 
+
     public Epic(String taskName, String details) {
         super(taskName, details, Status.NEW);
         listSaveSubTasksNum = new ArrayList<>();
+        this.taskType = TaskTypes.EPIC;
     }
 
     public List<Integer> getSubtasksIDs() {
@@ -23,6 +25,11 @@ public class Epic extends Task {
 
     public void removeSubtaskId(int id) {
         listSaveSubTasksNum.remove(Integer.valueOf(id));
+    }
+
+    @Override
+    public String toCsv() {
+        return super.toCsv();
     }
 
     @Override

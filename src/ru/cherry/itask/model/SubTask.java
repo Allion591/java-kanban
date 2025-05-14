@@ -5,7 +5,15 @@ public class SubTask extends Task {
 
     public SubTask(String taskName, String details, Status status, int epicId) {
         super(taskName, details, status);
+        this.taskType = TaskTypes.SUBTASK;
         this.epicId = epicId;
+    }
+
+    @Override
+    public String toCsv() {
+        return String.format("%s,%d",
+                super.toCsv(),
+                epicId);
     }
 
     public int getEpicId() {
