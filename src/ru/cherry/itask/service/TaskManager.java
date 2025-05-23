@@ -7,7 +7,7 @@ import ru.cherry.itask.model.Task;
 import java.util.List;
 
 public interface TaskManager {
-    //----------------Получение списка всех задач.---------------○------
+    //----------------Получение списка всех задач.---------------------
     List<Task> getAllTasksOfTask();
 
     List<Epic> getAllTasksOfEpic();
