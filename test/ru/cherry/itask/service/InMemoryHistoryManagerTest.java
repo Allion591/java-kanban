@@ -1,66 +1,60 @@
 package ru.cherry.itask.service;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import ru.cherry.itask.model.Epic;
+import ru.cherry.itask.model.SubTask;
 import ru.cherry.itask.model.Task;
-import java.util.List;
+
+import java.time.Duration;
+import java.time.LocalDateTime;
 import static org.junit.jupiter.api.Assertions.*;
+import static ru.cherry.itask.model.Task.Status.NEW;
 
-class InMemoryHistoryManagerTest {
+class InMemoryHistoryManagerTest extends HistoryManagerTest<InMemoryHistoryManager> {
 
-    @Test
-    void shouldNotContainDuplicates() {
-        InMemoryHistoryManager historyManager = new InMemoryHistoryManager();
-        Task task = new Task("Test", "Details", Task.Status.NEW);
-        task.setID(1);
-
-        historyManager.add(task);
-        historyManager.add(task);
-
-        assertEquals(1, historyManager.getHistory().size());
+    @BeforeEach
+    public void setUp() {
+        historyManager = new InMemoryHistoryManager();
     }
 
-    @Test
-    void shouldRemoveTaskFromHistory() {
-        InMemoryHistoryManager historyManager = new InMemoryHistoryManager();
-        Task task = new Task("Test", "Details", Task.Status.NEW);
-        task.setID(1);
-
-        historyManager.add(task);
+    @BeforeEach
+    public void beforeEach() {
+        historyManager.remove(0);
         historyManager.remove(1);
+        historyManager.remove(2);
 
-        assertTrue(historyManager.getHistory().isEmpty(), "Задача не удалена");
+        Task task1 = new Task("Убрать работу с консолью", "Удалить из Маин всё", NEW,
+                LocalDateTime.now().plusMinutes(15), Duration.ofMinutes(30));
+        task1.setID(0);
+        historyManager.add(task1);
+
+        Epic epic = new Epic("Test", "Epic");
+        epic.setID(1);
+        historyManager.add(epic);
+
+        SubTask subTask = new SubTask("Test", "subTask", Task.Status.NEW, 1,
+                LocalDateTime.now().plusDays(2), Duration.ofMinutes(60));
+        subTask.setID(2);
+        historyManager.add(subTask);
     }
 
     @Test
     void shouldMaintainInsertionOrder() {
-        InMemoryHistoryManager historyManager = new InMemoryHistoryManager();
-        Task task1 = new Task("Task1", "Details", Task.Status.NEW);
-        task1.setID(1);
-        Task task2 = new Task("Task2", "Details", Task.Status.NEW);
-        task2.setID(2);
-
-        historyManager.add(task1);
-        historyManager.add(task2);
-
-        List<Task> history = historyManager.getHistory();
-        assertEquals(1, history.get(0).getID(), "Порядок задач нарушен");
-        assertEquals(2, history.get(1).getID(), "Порядок задач нарушен");
+        assertEquals(1, historyManager.getHistory().get(1).getID(), "Порядок задач нарушен");
+        assertEquals(2, historyManager.getHistory().get(2).getID(), "Порядок задач нарушен");
     }
 
     @Test
     void TaskVersionsInHistory() {
-        InMemoryHistoryManager historyManager = new InMemoryHistoryManager();
+        historyManager.remove(1);
+        historyManager.remove(2);
+        Task task = historyManager.getHistory().get(0);
 
-        Task task = new Task("Test", "Details", Task.Status.NEW);
-        task.setID(1);
-
-        historyManager.add(task);
         task.setStatus(Task.Status.DONE);
         historyManager.add(task);
 
-        List<Task> listHistory = historyManager.getHistory();
-
-        assertEquals(1, listHistory.size(), "Должна быть только последняя версия");
-        assertEquals(Task.Status.DONE, listHistory.get(0).getStatus(), "Статус не обновлен");
+        assertEquals(1, historyManager.getHistory().size(), "Должна быть только последняя версия");
+        assertEquals(Task.Status.DONE, historyManager.getHistory().get(0).getStatus(), "Статус не обновлен");
     }
 }
