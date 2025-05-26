@@ -1,6 +1,7 @@
 package ru.cherry.itask.service;
 
 import org.junit.jupiter.api.Test;
+import ru.cherry.itask.exception.TimeConflictException;
 import ru.cherry.itask.model.Epic;
 import ru.cherry.itask.model.SubTask;
 import ru.cherry.itask.model.Task;
@@ -69,7 +70,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     //---------------------Создание задач--------------------------------
     @Test
-    void showCreatedTask() {
+    void showCreatedTask() throws TimeConflictException {
         Task task3 = new Task("Убрать работу с консолью", "Удалить из Маин всё", NEW,
                 LocalDateTime.now().plusMinutes(15), Duration.ofMinutes(60));
         taskManager.createTask(task3);
