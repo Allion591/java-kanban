@@ -1,6 +1,5 @@
 package ru.cherry.itask.service;
 
-import org.junit.platform.commons.logging.Logger;
 import ru.cherry.itask.exception.TimeConflictException;
 import ru.cherry.itask.model.Epic;
 import ru.cherry.itask.model.SubTask;
