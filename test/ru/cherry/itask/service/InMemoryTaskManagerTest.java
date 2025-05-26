@@ -21,7 +21,7 @@ public class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager
     }
 
     @BeforeEach
-    public void beforeEach() {
+    public void beforeEach() throws TimeConflictException {
         taskManager.removeAllTasksOfTask();
         taskManager.getAllTasksOfEpic();
         taskManager.removeAllTasksOfSubTask();
@@ -39,7 +39,7 @@ public class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager
     }
 
     @Test
-    void generatedIdsAndSendIdsNotConflict() {
+    void generatedIdsAndSendIdsNotConflict() throws TimeConflictException {
         Task setIdTask = taskManager.getTaskById(0);
         setIdTask.setID(4);
         taskManager.createTask(setIdTask);
@@ -51,7 +51,7 @@ public class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager
     }
 
     @Test
-    void immutabilityWhenAddingTaskToManager() {
+    void immutabilityWhenAddingTaskToManager() throws TimeConflictException {
         Task task_3 = new Task("Убрать работу с консолью", "Удалить из Маин всё", NEW,
                 LocalDateTime.now().plusMinutes(15), Duration.ofMinutes(30));
         taskManager.createTask(task_3);

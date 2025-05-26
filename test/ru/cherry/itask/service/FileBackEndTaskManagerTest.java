@@ -2,6 +2,7 @@ package ru.cherry.itask.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import ru.cherry.itask.exception.TimeConflictException;
 import ru.cherry.itask.model.Epic;
 import ru.cherry.itask.model.SubTask;
 import ru.cherry.itask.model.Task;
@@ -29,7 +30,7 @@ public class FileBackEndTaskManagerTest extends TaskManagerTest<FileBackedTaskMa
             timelesFile = File.createTempFile("temp1", "csv");
             taskManager = new FileBackedTaskManager(timelesFile.toPath());
             taskManager.removeAllTasksOfTask();
-            taskManager.getAllTasksOfEpic();
+            taskManager.removeAllTasksOfEpic();
             taskManager.removeAllTasksOfSubTask();
 
             Task task1 = new Task("Убрать работу с консолью", "Удалить из Маин всё", NEW,
@@ -45,6 +46,8 @@ public class FileBackEndTaskManagerTest extends TaskManagerTest<FileBackedTaskMa
             taskManager.createSubTask(subTask);
         } catch (IOException e) {
             System.out.println("Ошибка чтения файла");
+        } catch (TimeConflictException e) {
+            System.out.println(e.getMessage());
         }
     }
 
