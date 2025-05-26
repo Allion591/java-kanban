@@ -1,5 +1,6 @@
 package ru.cherry.itask.service;
 
+import org.junit.platform.commons.logging.Logger;
 import ru.cherry.itask.exception.TimeConflictException;
 import ru.cherry.itask.model.Epic;
 import ru.cherry.itask.model.SubTask;
@@ -111,12 +112,8 @@ public class InMemoryTaskManager implements TaskManager {
 
     //-----------Создание задач--------------------------------
     @Override
-    public void createTask(Task task) {
-        try {
-            taskIntersection(task);
-        } catch (TimeConflictException e) {
-            return;
-        }
+    public void createTask(Task task) throws TimeConflictException {
+        taskIntersection(task);
         int newIdForTask = taskCount();
         task.setID(newIdForTask);
         saveTasks.put(newIdForTask, task);
@@ -147,7 +144,6 @@ public class InMemoryTaskManager implements TaskManager {
         epic.addSubtaskId(newIdForSubtask);
         updateEpicTask(epic);
         checkEpicStatus(epicId);
-        setStartTimeAndDurationForEpic(epic.getID());
         return subTask;
     }
     //----------------------------------------------------------------------------------------------------------
@@ -275,7 +271,7 @@ public class InMemoryTaskManager implements TaskManager {
     //------------------------------------------------------------------------------------------
 
     //----------------Установка времени старта и длительности эпик задачи----------------------------------------
-    private void setStartTimeAndDurationForEpic(int epicId) {
+    public void setStartTimeAndDurationForEpic(int epicId) {
         Epic epic = saveEpicTasks.get(epicId);
         List<Integer> subTasksFromEpic = new ArrayList<>(epic.getSubtasksIDs());
         if (subTasksFromEpic.isEmpty()) {
@@ -313,14 +309,18 @@ public class InMemoryTaskManager implements TaskManager {
 
     //------------------------------Список задач и подзадач в заданном порядке--------------------
     public TreeSet<Task> getPrioritizedTasks() {
-        Comparator<Task> taskComparator = Comparator.comparing(Task::getStartTime)
-                .thenComparing(Task::getID);
-        TreeSet<Task> tasksSortedByDate = new TreeSet<>(taskComparator);
+            Comparator<Task> taskComparator = Comparator.comparing(Task::getStartTime)
+                    .thenComparing(Task::getID);
 
-        tasksSortedByDate.addAll(saveTasks.values());
-        tasksSortedByDate.addAll(saveSubTasks.values());
+            TreeSet<Task> tasksSortedByDate = new TreeSet<>(taskComparator);
 
-        return tasksSortedByDate;
+            saveTasks.values().stream()
+                    .filter(task -> task.getStartTime() != null)
+                    .forEach(tasksSortedByDate::add);
+            saveSubTasks.values().stream()
+                    .filter(subTask -> subTask.getStartTime() != null)
+                    .forEach(tasksSortedByDate::add);
+            return tasksSortedByDate;
     }
     //---------------------------------------------------------------------------------------------
 
