@@ -24,8 +24,7 @@ public class Main {
         InMemoryTaskManager taskManager = new InMemoryTaskManager();
         FileBackedTaskManager fileManager = new FileBackedTaskManager(dir);
 
-        Task task1 = new Task("Убрать работу с консолью", "Удалить из Маин всё", NEW,
-                LocalDateTime.now().plusMinutes(60), Duration.ofMinutes(60));
+        Task task1 = new Task("Убрать работу с консолью", "Удалить из Маин всё", NEW);
         fileManager.createTask(task1);
 
         Task task2 = new Task("Убрать работу с консолью", "Удалить из Маин всё", NEW,
@@ -43,10 +42,12 @@ public class Main {
         fileManager.createSubTask(subTask1);
 
         SubTask subTask2 = new SubTask("Работа с Эпик", "Добавить лист", IN_PROGRESS, epic2.getID(),
-                LocalDateTime.now().plusMinutes(30), Duration.ofMinutes(120));
+                LocalDateTime.now().plusMinutes(180), Duration.ofMinutes(120));
         fileManager.createSubTask(subTask2);
+        fileManager.setStartTimeAndDurationForEpic(epic2.getID());
 
         FileBackedTaskManager loadedManager = FileBackedTaskManager.loadFromFile(saveFile);
+        loadedManager.setStartTimeAndDurationForEpic(epic2.getID());
 
         for (Task task : loadedManager.getAllTasksOfTask()) {
             System.out.println(task);
@@ -59,7 +60,6 @@ public class Main {
         }
         //loadedManager.removeEpicTaskById(task1.getID());
         System.out.println("History:");
-        loadedManager.setNewStatusOfSubTask(subTask2);
 
         for (Task task : loadedManager.getHistory()) {
             System.out.println(task);

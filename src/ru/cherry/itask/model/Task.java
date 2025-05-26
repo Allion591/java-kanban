@@ -30,11 +30,16 @@ public class Task {
         this.taskName = taskName;
         this.details = details;
         this.status = status;
+        this.taskType = TaskTypes.TASK;
     }
 
     public String toCsv() {
-        if (startTime == null) {
-            return String.format("%d,%s,%s,%s,%s", id, taskType, taskName, status, details);
+        if (startTime == null || durationTask == null) {
+            String dataTime = " ";
+            String duration = " ";
+            String endTime = " ";
+            return String.format("%d,%s,%s,%s,%s,%s,%s,%s", id, taskType, taskName, status, details,
+                    dataTime, duration, endTime);
         } else {
             return String.format("%d,%s,%s,%s,%s,%s,%s,%s", id, taskType, taskName, status, details,
                     startTime.format(formatter), durationTask.toMinutes(), getEndTime().format(formatter));
@@ -42,27 +47,39 @@ public class Task {
     }
 
     public LocalDateTime getEndTime() {
+        if (durationTask == null || startTime == null) {
+            return null;
+        }
         return startTime.plusMinutes(durationTask.toMinutes());
     }
 
     public static Task fromCsv(String value) {
+        boolean isNotFullTask = false;
         String[] tasksElements = value.split(",");
         TaskTypes type = TaskTypes.valueOf(tasksElements[1]);
         String name = tasksElements[2];
         Status status = Status.valueOf(tasksElements[3]);
         String details = tasksElements[4];
 
+        if (Objects.equals(tasksElements[5], " ")) {
+            isNotFullTask = true;
+        }
+
         switch (type) {
             case TASK:
-                LocalDateTime startTime = LocalDateTime.parse(tasksElements[5], formatter);
-                Duration durationTask = Duration.ofMinutes(Integer.parseInt(tasksElements[6]));
-                return new Task(name, details, status, startTime, durationTask);
+                if (isNotFullTask) {
+                    return new Task(name, details, status);
+                } else {
+                    LocalDateTime startTime = LocalDateTime.parse(tasksElements[5], formatter);
+                    Duration durationTask = Duration.ofMinutes(Integer.parseInt(tasksElements[6]));
+                    return new Task(name, details, status, startTime, durationTask);
+                }
             case EPIC:
                 return new Epic(name, details);
             case SUBTASK:
-                startTime = LocalDateTime.parse(tasksElements[5], formatter);
-                durationTask = Duration.ofMinutes(Integer.parseInt(tasksElements[6]));
                 int epicId = Integer.parseInt(tasksElements[8]);
+                LocalDateTime startTime = LocalDateTime.parse(tasksElements[5], formatter);
+                Duration durationTask = Duration.ofMinutes(Integer.parseInt(tasksElements[6]));
                 return new SubTask(name, details, status, epicId, startTime, durationTask);
             default:
                 return null;
@@ -76,8 +93,16 @@ public class Task {
     }
 
     public boolean isOverlap(Task otherTask) {
-        return !(this.getID() == (otherTask.getID()))
-                && this.startTime.isBefore(otherTask.getEndTime()) && otherTask.getStartTime().isBefore(getEndTime());
+        if (this.getID() == otherTask.getID()) {
+            return false;
+        }
+        LocalDateTime thisEnd = this.getEndTime();
+        LocalDateTime otherEnd = otherTask.getEndTime();
+        if (this.startTime == null || thisEnd == null
+                || otherTask.getStartTime() == null || otherEnd == null) {
+            return false;
+        }
+        return this.startTime.isBefore(otherTask.getEndTime()) && otherTask.getStartTime().isBefore(getEndTime());
     }
 
     @Override
@@ -156,6 +181,14 @@ public class Task {
 
     @Override
     public String toString() {
+        if (startTime == null || durationTask == null) {
+            return "Task{" +
+                    "idOfTask=" + id +
+                    ", taskName='" + taskName + '\'' +
+                    ", details='" + details + '\'' +
+                    ", status=" + status + '\'' +
+                    '}';
+        }
         return "Task{" +
                 "idOfTask=" + id +
                 ", taskName='" + taskName + '\'' +

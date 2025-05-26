@@ -35,15 +35,25 @@ public class SubTask extends Task {
 
     @Override
     public String toString() {
-        return "subTask{" +
-                "ID=" + getID() +
-                ", taskName='" + getTaskName() + '\'' +
-                ", details='" + getDetails() + '\'' +
-                ", status=" + getStatus() +
-                ", EpicId=" + epicId +
-                ", startTime='" + getStartTime().format(formatter) + '\'' +
-                ", duration='" + getDurationTask().toMinutes() + '\'' +
-                ", endTime='" + getEndTime().format(formatter) + '\'' +
-                '}';
+        if (getStartTime() == null || getDurationTask() == null) {
+            return "subTask{" +
+                    "ID=" + getID() +
+                    ", taskName='" + getTaskName() + '\'' +
+                    ", details='" + getDetails() + '\'' +
+                    ", status=" + getStatus() +
+                    ", EpicId=" + epicId +
+                    '}';
+        } else {
+            return "subTask{" +
+                    "ID=" + getID() +
+                    ", taskName='" + getTaskName() + '\'' +
+                    ", details='" + getDetails() + '\'' +
+                    ", status=" + getStatus() +
+                    ", EpicId=" + epicId +
+                    ", startTime='" + getStartTime().format(formatter) + '\'' +
+                    ", duration='" + getDurationTask().toMinutes() + '\'' +
+                    ", endTime='" + getEndTime().format(formatter) + '\'' +
+                    '}';
+        }
     }
 }
