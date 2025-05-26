@@ -1,6 +1,7 @@
 package ru.cherry.itask.service;
 
 import ru.cherry.itask.exception.ManagerSaveException;
+import ru.cherry.itask.exception.TimeConflictException;
 import ru.cherry.itask.model.Epic;
 import ru.cherry.itask.model.SubTask;
 import ru.cherry.itask.model.Task;
@@ -13,6 +14,7 @@ import java.util.List;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
     private Path dir;
+
 
     public FileBackedTaskManager(Path file) {
         this.dir = file;
@@ -125,13 +127,15 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             }
         } catch (IOException e) {
             throw new ManagerSaveException("Ошибка при чтении файла", e);
+        } catch (TimeConflictException e) {
+            System.out.println(e.getMessage());
         }
         return manager;
     }
 
     //-----------Создание задач--------------------------------
     @Override
-    public void createTask(Task task) {
+    public void createTask(Task task) throws TimeConflictException {
         super.createTask(task);
         save();
     }
