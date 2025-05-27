@@ -1,5 +1,6 @@
 package ru.cherry.itask.service;
 
+import ru.cherry.itask.exception.TimeConflictException;
 import ru.cherry.itask.model.Epic;
 import ru.cherry.itask.model.SubTask;
 import ru.cherry.itask.model.Task;
@@ -7,7 +8,7 @@ import ru.cherry.itask.model.Task;
 import java.util.List;
 
 public interface TaskManager {
-    //----------------Получение списка всех задач.---------------○------
+    //----------------Получение списка всех задач.---------------------
     List<Task> getAllTasksOfTask();
 
     List<Epic> getAllTasksOfEpic();
@@ -29,7 +30,7 @@ public interface TaskManager {
     SubTask getTaskByIdOfSubTask(int idSubTask);
 
     //-----------Создание задач--------------------------------
-    void createTask(Task task);
+    void createTask(Task task) throws TimeConflictException;
 
     Epic createEpicTask(Epic epic);
 

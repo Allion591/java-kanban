@@ -2,146 +2,187 @@ package ru.cherry.itask.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import ru.cherry.itask.exception.TimeConflictException;
 import ru.cherry.itask.model.Epic;
 import ru.cherry.itask.model.SubTask;
 import ru.cherry.itask.model.Task;
-import java.util.List;
-import static org.junit.jupiter.api.Assertions.*;
 
-class InMemoryTaskManagerTest {
-    private InMemoryTaskManager manager;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import static org.junit.jupiter.api.Assertions.*;
+import static ru.cherry.itask.model.Task.Status.*;
+
+public class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager> {
+
 
     @BeforeEach
-    void beforeEach() {
-        manager = new InMemoryTaskManager();
+    public void setUp() {
+        taskManager = new InMemoryTaskManager();
     }
 
-    @Test
-    void AddAndFindAllTaskTypes() {
-        Task task = new Task("Test", "Task", Task.Status.NEW);
-        manager.createTask(task);
+    @BeforeEach
+    public void beforeEach() throws TimeConflictException {
+        taskManager.removeAllTasksOfTask();
+        taskManager.getAllTasksOfEpic();
+        taskManager.removeAllTasksOfSubTask();
+
+        Task task1 = new Task("Убрать работу с консолью", "Удалить из Маин всё", NEW,
+                LocalDateTime.now().plusMinutes(15), Duration.ofMinutes(30));
+        taskManager.createTask(task1);
+
         Epic epic = new Epic("Test", "Epic");
-        manager.createEpicTask(epic);
-        SubTask subTask = new SubTask("Test", "subTask", Task.Status.NEW, epic.getID());
-        manager.createSubTask(subTask);
+        taskManager.createEpicTask(epic);
 
-        assertNotNull(manager.getTaskById(task.getID()));
-        assertNotNull(manager.getTaskByIdOfEpic(epic.getID()));
-        assertNotNull(manager.getTaskByIdOfSubTask(subTask.getID()));
+        SubTask subTask = new SubTask("Test", "subTask", Task.Status.NEW, 1,
+                LocalDateTime.now().plusDays(2), Duration.ofMinutes(60));
+        taskManager.createSubTask(subTask);
     }
 
     @Test
-    void generatedIdsAndSendIdsNotConflict() {
-        Task setIdTask = new Task("Test2", "Task2", Task.Status.NEW);
+    void generatedIdsAndSendIdsNotConflict() throws TimeConflictException {
+        Task setIdTask = taskManager.getTaskById(0);
         setIdTask.setID(4);
-        manager.createTask(setIdTask);
+        taskManager.createTask(setIdTask);
 
-        Task generateIdTask = new Task("Test3", "Task3", Task.Status.IN_PROGRESS);
-        manager.createTask(generateIdTask);
+        Task generateIdTask = new Task("Убрать работу с консолью", "Удалить из Маин всё", NEW,
+                LocalDateTime.now().plusMinutes(15), Duration.ofMinutes(30));
 
         assertNotEquals(setIdTask, generateIdTask, "ID не должны быть одинаковыми");
     }
 
     @Test
-    void immutabilityWhenAddingTaskToManager() {
-        Task task_3 = new Task("Test4", "task_3", Task.Status.DONE);
-        manager.createTask(task_3);
+    void immutabilityWhenAddingTaskToManager() throws TimeConflictException {
+        Task task_3 = new Task("Убрать работу с консолью", "Удалить из Маин всё", NEW,
+                LocalDateTime.now().plusMinutes(15), Duration.ofMinutes(30));
+        taskManager.createTask(task_3);
 
-        Task task_4 = manager.getTaskById(task_3.getID());
+        Task task_4 = taskManager.getTaskById(task_3.getID());
 
         assertEquals(task_3, task_4, "Задачи должны совпадать");
     }
 
     @Test
     void removeAllTasksInMap() {
-        Task task = new Task("Test", "Task", Task.Status.NEW);
-        manager.createTask(task);
-        Epic epic = new Epic("Test", "Epic");
-        manager.createEpicTask(epic);
-        SubTask subTask = new SubTask("Test", "subTask", Task.Status.NEW, epic.getID());
-        manager.createSubTask(subTask);
+        assertEquals(1, taskManager.getAllTasksOfTask().size());
+        assertEquals(1, taskManager.getAllTasksOfEpic().size());
+        assertEquals(1, taskManager.getAllTasksOfSubTask().size());
 
-        assertEquals(1, manager.getAllTasksOfTask().size());
-        assertEquals(1, manager.getAllTasksOfEpic().size());
-        assertEquals(1, manager.getAllTasksOfSubTask().size());
+        taskManager.removeAllTasksOfTask();
+        taskManager.removeAllTasksOfEpic();
+        taskManager.removeAllTasksOfSubTask();
 
-        manager.removeAllTasksOfTask();
-        manager.removeAllTasksOfEpic();
-        manager.removeAllTasksOfSubTask();
-
-        assertEquals(0, manager.getAllTasksOfTask().size());
-        assertEquals(0, manager.getAllTasksOfEpic().size());
-        assertEquals(0, manager.getAllTasksOfSubTask().size());
+        assertEquals(0, taskManager.getAllTasksOfTask().size());
+        assertEquals(0, taskManager.getAllTasksOfEpic().size());
+        assertEquals(0, taskManager.getAllTasksOfSubTask().size());
     }
 
     @Test
     void showUpdateAllTasks() {
-        Task task = new Task("Test", "Task", Task.Status.NEW);
-        manager.createTask(task);
-        Epic epic = new Epic("Test", "Epic");
-        manager.createEpicTask(epic);
-        SubTask subTask = new SubTask("Test", "subTask", Task.Status.NEW, epic.getID());
-        manager.createSubTask(subTask);
+        Task task = taskManager.getTaskById(0);
+        Epic epic = taskManager.getTaskByIdOfEpic(1);
+        SubTask subTask = taskManager.getTaskByIdOfSubTask(2);
 
 
         task.setStatus(Task.Status.IN_PROGRESS);
-        manager.updateTask(task);
+        taskManager.updateTask(task);
         subTask.setStatus(Task.Status.DONE);
-        manager.updateSubTask(subTask);
+        taskManager.updateSubTask(subTask);
         epic.setDetails("Change Details");
         String details = "Change Details";
-        manager.updateEpicTask(epic);
+        taskManager.updateEpicTask(epic);
 
-        assertEquals(Task.Status.IN_PROGRESS, manager.getTaskById(task.getID()).getStatus());
-        assertEquals(Task.Status.DONE, manager.getTaskByIdOfSubTask(subTask.getID()).getStatus());
-        assertEquals(details, manager.getTaskByIdOfEpic(epic.getID()).getDetails());
-    }
-
-    @Test
-    void shouldAddTaskToHistoryWhenRetrieved() {
-        Task task = new Task("Test", "Details", Task.Status.NEW);
-        manager.createTask(task);
-        manager.getTaskById(task.getID());
-
-        List<Task> history = manager.getHistory();
-        assertEquals(1, history.size(), "Задача не добавлена в историю");
-        assertEquals(task.getID(), history.get(0).getID(), "Неверная задача в истории");
+        assertEquals(Task.Status.IN_PROGRESS, taskManager.getTaskById(task.getID()).getStatus());
+        assertEquals(Task.Status.DONE, taskManager.getTaskByIdOfSubTask(subTask.getID()).getStatus());
+        assertEquals(details, taskManager.getTaskByIdOfEpic(epic.getID()).getDetails());
     }
 
     @Test
     void shouldRemoveTaskFromHistoryWhenDeleted() {
-        Task task = new Task("Test", "Details", Task.Status.NEW);
-        manager.createTask(task);
+        Task task = taskManager.getTaskById(0);
         int taskID = task.getID();
-        manager.getTaskById(taskID);
-        manager.removeTaskById(taskID);
+        taskManager.getTaskById(taskID);
+        taskManager.removeTaskById(taskID);
 
-        assertTrue(manager.getHistory().isEmpty(), "Задача не удалена из истории");
+        assertTrue(taskManager.getHistory().isEmpty(), "Задача не удалена из истории");
     }
 
     @Test
     void epicShouldNotContainRemovedSubtaskId() {
-        Epic epic = new Epic("Epic", "Details");
-        manager.createEpicTask(epic);
-        SubTask subTask = new SubTask("Sub", "Details", Task.Status.NEW, epic.getID());
-        manager.createSubTask(subTask);
+        Epic epic = taskManager.getTaskByIdOfEpic(1);
+        SubTask subTask = taskManager.getTaskByIdOfSubTask(2);
 
         int subtaskId = subTask.getID();
-        manager.removeSubTaskById(subtaskId);
+        taskManager.removeSubTaskById(subtaskId);
 
         assertFalse(epic.getSubtasksIDs().contains(subtaskId), "ID подзадачи остался в эпике");
     }
 
     @Test
     void changingTaskIdShouldNotAffectManager() {
-        Task task = new Task("Test", "Details", Task.Status.NEW);
-        manager.createTask(task);
+        Task task = taskManager.getTaskById(0);
         int originId = task.getID();
 
         task.setID(666);
-        Task retivedTask = manager.getTaskById(originId);
+        Task retivedTask = taskManager.getTaskById(originId);
 
         assertNotNull(retivedTask, "Задача должнеа быть доступна по оригинальному ID");
-        assertNull(manager.getTaskById(666), "Не должно быть задачи сновым ID");
+        assertNull(taskManager.getTaskById(666), "Не должно быть задачи с новым ID");
+    }
+
+    @Test
+    void showCalculationOfEpicStatusBoundaryConditions() {
+        SubTask subTask_2 = new SubTask("Test", "subTask", Task.Status.NEW, 1,
+                LocalDateTime.now().plusDays(5), Duration.ofMinutes(120));
+        taskManager.createSubTask(subTask_2);
+        Epic epic_2 = taskManager.getTaskByIdOfEpic(1);
+
+        assertEquals(NEW, epic_2.getStatus(), "Статус эпика не NEW");
+
+        SubTask subTask_3 = taskManager.getTaskByIdOfSubTask(2);
+
+        subTask_2.setStatus(DONE);
+        subTask_3.setStatus(DONE);
+        taskManager.updateSubTask(subTask_2);
+        taskManager.updateSubTask(subTask_3);
+        taskManager.checkEpicStatus(epic_2.getID());
+        assertEquals(DONE, epic_2.getStatus(), "Статус эпика не DONE");
+
+        subTask_2.setStatus(NEW);
+        subTask_3.setStatus(DONE);
+        taskManager.updateSubTask(subTask_2);
+        taskManager.updateSubTask(subTask_3);
+        taskManager.checkEpicStatus(epic_2.getID());
+        assertEquals(NEW, epic_2.getStatus(), "Статус эпика не NEW");
+
+        subTask_2.setStatus(IN_PROGRESS);
+        subTask_3.setStatus(IN_PROGRESS);
+        taskManager.updateSubTask(subTask_2);
+        taskManager.updateSubTask(subTask_3);
+        taskManager.checkEpicStatus(epic_2.getID());
+        assertEquals(IN_PROGRESS, epic_2.getStatus(), "Статус эпика не IN_PROGRESS");
+    }
+
+    @Test
+    void showThePresenceOfAnAssociatedEpic() {
+        SubTask subTask = taskManager.getTaskByIdOfSubTask(2);
+
+        assertEquals(taskManager.getTaskByIdOfEpic(1).getID(), subTask.getEpicId(),
+                "Неправильный ID эпик задачи");
+    }
+
+    @Test
+    void showCheckingTheIntersectionOfIntervals() throws TimeConflictException {
+        Task task = new Task("Убрать работу с консолью", "Удалить из Маин всё", NEW,
+                LocalDateTime.now().plusMinutes(120), Duration.ofMinutes(30));
+        taskManager.createTask(task);
+
+        assertFalse(taskManager.taskIntersection(task));
+
+        task.setStartTime(LocalDateTime.now().plusMinutes(15));
+        taskManager.updateTask(task);
+
+        assertThrows(TimeConflictException.class, () -> {
+            taskManager.taskIntersection(task);
+        }, "Задачи не пересекаются по времени");
     }
 }
