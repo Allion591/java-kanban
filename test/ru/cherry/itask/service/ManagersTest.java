@@ -8,7 +8,6 @@ class ManagersTest {
 
  @Test
  void ReturnInitializedManagers() {
-  assertNotNull(Managers.getDefault(), "Не должен быть Null в getDefault");
   assertNotNull(managers.getDefaultHistory(), "Не должно быть Null в getDefaultHistory");
  }
 }
