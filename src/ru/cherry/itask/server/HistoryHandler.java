@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-import ru.cherry.itask.service.InMemoryTaskManager;
+import ru.cherry.itask.service.TaskManager;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -13,28 +13,13 @@ import java.util.regex.Pattern;
 
 public class HistoryHandler extends BaseHttpHandler implements HttpHandler {
 
-    private final InMemoryTaskManager inMemoryTaskManager;
+    private final TaskManager inMemoryTaskManager;
 
-    HistoryHandler(InMemoryTaskManager inMemoryTaskManager) {
+    HistoryHandler(TaskManager inMemoryTaskManager) {
         this.inMemoryTaskManager = inMemoryTaskManager;
     }
 
     private static final Gson gson = getGson();
-
-    @Override
-    protected void sendText(HttpExchange exchange, String text) throws IOException {
-        super.sendText(exchange, text);
-    }
-
-    @Override
-    public void sendNotFound(HttpExchange exchange, String text) throws IOException {
-        super.sendNotFound(exchange, text);
-    }
-
-    @Override
-    public void sendHasInteractions(HttpExchange exchange, String text) throws IOException {
-        super.sendHasInteractions(exchange, text);
-    }
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
