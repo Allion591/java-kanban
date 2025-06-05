@@ -93,9 +93,6 @@ public class Task {
     }
 
     public boolean isOverlap(Task otherTask) {
-        if (this.getID() == otherTask.getID()) {
-            return false;
-        }
         LocalDateTime thisEnd = this.getEndTime();
         LocalDateTime otherEnd = otherTask.getEndTime();
         if (this.startTime == null || thisEnd == null
