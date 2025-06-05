@@ -1,13 +1,14 @@
 package ru.cherry.itask.service;
 
 public class Managers {
-    private final HistoryManager defaultHistory = new InMemoryHistoryManager();
+    private final InMemoryHistoryManager defaultHistory = new InMemoryHistoryManager();
+    private static final InMemoryTaskManager defaultManager = new InMemoryTaskManager();
 
-    public static TaskManager getDefault() {
-        return new InMemoryTaskManager();
+    public InMemoryTaskManager getDefault() {
+        return defaultManager;
     }
 
-    public HistoryManager getDefaultHistory() {
+    public InMemoryHistoryManager getDefaultHistory() {
         return defaultHistory;
     }
 }
