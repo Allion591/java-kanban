@@ -3,25 +3,31 @@ import com.sun.net.httpserver.HttpServer;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+
 import ru.cherry.itask.service.Managers;
+import ru.cherry.itask.service.TaskManager;
 
 public class HttpTaskServer {
     private static final int PORT = 8080;
-    HttpServer server;
-    static Managers managers = new Managers();
+    private final HttpServer server;
+    private final TaskManager manager;
 
-    public HttpTaskServer(Managers managers) throws IOException {
-        HttpTaskServer.managers = managers;
+    public HttpTaskServer(TaskManager manager) throws IOException {
+        this.manager = manager;
         server = HttpServer.create(new InetSocketAddress("localHost", PORT), 0);
-        server.createContext("/api/tasks", new TasksHandler(managers.getDefault()));
-        server.createContext("/api/epics", new EpicHandler(managers.getDefault()));
-        server.createContext("/api/subtasks", new SubTasksHandler(managers.getDefault()));
-        server.createContext("/api/history", new HistoryHandler(managers.getDefault()));
-        server.createContext("/api/prioritized", new PrioritizedHandler(managers.getDefault()));
+        server.createContext("/api/tasks", new TasksHandler(manager));
+        server.createContext("/api/epics", new EpicHandler(manager));
+        server.createContext("/api/subtasks", new SubTasksHandler(manager));
+        server.createContext("/api/history", new HistoryHandler(manager));
+        server.createContext("/api/prioritized", new PrioritizedHandler(manager));
+    }
+
+    public HttpTaskServer() throws IOException {
+        this(Managers.getDefault());
     }
 
     public static void main(String[] args) throws IOException {
-        HttpTaskServer httpServer = new HttpTaskServer(managers);
+        HttpTaskServer httpServer = new HttpTaskServer();
         httpServer.start();
     }
 
