@@ -1,23 +1,19 @@
 package ru.cherry.itask.server;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import ru.cherry.itask.exception.NotFoundException;
 import ru.cherry.itask.model.Epic;
-import ru.cherry.itask.service.InMemoryTaskManager;
+import ru.cherry.itask.service.TaskManager;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.regex.Pattern;
 
 public class EpicHandler extends BaseHttpHandler implements HttpHandler {
-    private final InMemoryTaskManager inMemoryTaskManager;
+    private final TaskManager inMemoryTaskManager;
 
-    EpicHandler(InMemoryTaskManager inMemoryTaskManager) {
+    EpicHandler(TaskManager inMemoryTaskManager) {
         this.inMemoryTaskManager = inMemoryTaskManager;
     }
 
@@ -102,17 +98,5 @@ public class EpicHandler extends BaseHttpHandler implements HttpHandler {
         } catch (NumberFormatException e) {
             return -1;
         }
-    }
-
-    public static Gson getGson() {
-        GsonBuilder gsonBuilder = new GsonBuilder();
-        gsonBuilder.serializeNulls();
-        gsonBuilder.registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter());
-        gsonBuilder.registerTypeAdapter(Duration.class, new DurationAdapter());
-        return gsonBuilder.create();
-    }
-
-    private String readText(HttpExchange exchange) throws IOException {
-        return new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
     }
 }
