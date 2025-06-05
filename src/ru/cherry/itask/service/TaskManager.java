@@ -58,4 +58,13 @@ public interface TaskManager {
 
     //------------Вызов истории просмотров---------------------------------------
     List<Task> getHistory();
+    //----------------------------------------------------------------------------------
+
+    boolean taskIntersection(Task task);
+
+    Object getAllSubTasksFromEpic(int id);
+
+    void setStartTimeAndDurationForEpic(int epicId);
+
+    Object getPrioritizedTasks();
 }
