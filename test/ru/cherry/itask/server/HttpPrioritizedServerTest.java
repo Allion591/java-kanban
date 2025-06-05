@@ -10,6 +10,7 @@ import ru.cherry.itask.model.SubTask;
 import ru.cherry.itask.model.Task;
 import ru.cherry.itask.service.InMemoryTaskManager;
 import ru.cherry.itask.service.Managers;
+import ru.cherry.itask.service.TaskManager;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -27,13 +28,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class HttpPrioritizedServerTest {
     private HttpTaskServer httpTaskServer;
     private final Gson gson = PrioritizedHandler.getGson();
-    private InMemoryTaskManager inMemoryTaskManager;
+    private TaskManager inMemoryTaskManager;
 
     @BeforeEach
     void setUp() throws Exception {
-        Managers managers = new Managers();
-        httpTaskServer = new HttpTaskServer(managers);
-        inMemoryTaskManager = managers.getDefault();
+        inMemoryTaskManager = Managers.getDefault();
+        httpTaskServer = new HttpTaskServer(inMemoryTaskManager);
         inMemoryTaskManager.removeAllTasksOfTask();
         httpTaskServer.start();
     }

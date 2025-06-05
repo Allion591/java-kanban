@@ -8,8 +8,8 @@ import org.junit.jupiter.api.Test;
 import ru.cherry.itask.model.Epic;
 import ru.cherry.itask.model.SubTask;
 import ru.cherry.itask.model.Task;
-import ru.cherry.itask.service.InMemoryTaskManager;
 import ru.cherry.itask.service.Managers;
+import ru.cherry.itask.service.TaskManager;
 
 
 import java.io.IOException;
@@ -28,13 +28,12 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 public class HttpSubTaskServerTest {
     private HttpTaskServer httpTaskServer;
     private final Gson gson = SubTasksHandler.getGson();
-    private InMemoryTaskManager inMemoryTaskManager;
+    private TaskManager inMemoryTaskManager;
 
     @BeforeEach
     void setUp() throws Exception {
-        Managers managers = new Managers();
-        httpTaskServer = new HttpTaskServer(managers);
-        inMemoryTaskManager = managers.getDefault();
+        inMemoryTaskManager = Managers.getDefault();
+        httpTaskServer = new HttpTaskServer(inMemoryTaskManager);
         inMemoryTaskManager.removeAllTasksOfEpic();
         inMemoryTaskManager.removeAllTasksOfTask();
         httpTaskServer.start();

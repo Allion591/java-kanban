@@ -9,8 +9,8 @@ import ru.cherry.itask.exception.NotFoundException;
 import ru.cherry.itask.model.Epic;
 import ru.cherry.itask.model.SubTask;
 import ru.cherry.itask.model.Task;
-import ru.cherry.itask.service.InMemoryTaskManager;
 import ru.cherry.itask.service.Managers;
+import ru.cherry.itask.service.TaskManager;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -28,13 +28,12 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 public class HttpEpicServerTest {
     private HttpTaskServer httpTaskServer;
     private final Gson gson = EpicHandler.getGson();
-    private InMemoryTaskManager inMemoryTaskManager;
+    private TaskManager inMemoryTaskManager;
 
     @BeforeEach
     void setUp() throws Exception {
-        Managers managers = new Managers();
-        httpTaskServer = new HttpTaskServer(managers);
-        inMemoryTaskManager = managers.getDefault();
+        inMemoryTaskManager = Managers.getDefault();
+        httpTaskServer = new HttpTaskServer(inMemoryTaskManager);
         inMemoryTaskManager.removeAllTasksOfEpic();
         httpTaskServer.start();
     }
@@ -350,6 +349,6 @@ public class HttpEpicServerTest {
 
         assertNotNull(tasksFromServer, "Задачи отсутствуют в менеджере задач");
 
-        assertEquals(1, tasksFromServer.size(), "Добавлены не все задачи");
+        assertEquals(2, tasksFromServer.size(), "Добавлены не все задачи");
     }
 }

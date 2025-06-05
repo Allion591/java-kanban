@@ -6,8 +6,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.cherry.itask.model.Task;
-import ru.cherry.itask.service.InMemoryTaskManager;
 import ru.cherry.itask.service.Managers;
+import ru.cherry.itask.service.TaskManager;
 
 
 import java.io.IOException;
@@ -26,13 +26,12 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 public class HttpTaskServerTest {
     private HttpTaskServer httpTaskServer;
     private final Gson gson = TasksHandler.getGson();
-    private InMemoryTaskManager inMemoryTaskManager;
+    private TaskManager inMemoryTaskManager;
 
     @BeforeEach
     void setUp() throws Exception {
-        Managers managers = new Managers();
-        httpTaskServer = new HttpTaskServer(managers);
-        inMemoryTaskManager = managers.getDefault();
+        inMemoryTaskManager = Managers.getDefault();
+        httpTaskServer = new HttpTaskServer(inMemoryTaskManager);
         inMemoryTaskManager.removeAllTasksOfTask();
         httpTaskServer.start();
     }
