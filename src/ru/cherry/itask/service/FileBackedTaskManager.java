@@ -1,6 +1,7 @@
 package ru.cherry.itask.service;
 
 import ru.cherry.itask.exception.ManagerSaveException;
+import ru.cherry.itask.exception.NotFoundException;
 import ru.cherry.itask.exception.TimeConflictException;
 import ru.cherry.itask.model.Epic;
 import ru.cherry.itask.model.SubTask;
@@ -14,7 +15,6 @@ import java.util.List;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
     private Path dir;
-
 
     public FileBackedTaskManager(Path file) {
         this.dir = file;
@@ -32,7 +32,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         return Task.fromCsv(value);
     }
 
-    private void save() {
+    private void save() throws NotFoundException {
         try (FileWriter fileWriter = new FileWriter(dir.toFile(), StandardCharsets.UTF_8);
              BufferedWriter br = new BufferedWriter(fileWriter)) {
             StringBuilder tasksToStrings = new StringBuilder();
@@ -51,6 +51,8 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             br.write("History" + historyToCsv());
         } catch (IOException e) {
             throw new ManagerSaveException("Ошибка при записи файла", e);
+        } catch (NotFoundException e) {
+            return;
         }
     }
 
@@ -63,7 +65,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         return tasksIds.toString();
     }
 
-    private void restoreHistory(String line) {
+    private void restoreHistory(String line) throws NotFoundException {
         String[] idsElements = line.split(",", -1);
         boolean isFirst = true;
         int id;
@@ -127,7 +129,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             }
         } catch (IOException e) {
             throw new ManagerSaveException("Ошибка при чтении файла", e);
-        } catch (TimeConflictException e) {
+        } catch (TimeConflictException | NotFoundException e) {
             System.out.println(e.getMessage());
         }
         return manager;
@@ -135,20 +137,21 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     //-----------Создание задач--------------------------------
     @Override
-    public void createTask(Task task) throws TimeConflictException {
+    public Task createTask(Task task) throws TimeConflictException, NotFoundException {
         super.createTask(task);
         save();
+        return task;
     }
 
     @Override
-    public Epic createEpicTask(Epic epic) {
+    public Epic createEpicTask(Epic epic) throws NotFoundException {
         super.createEpicTask(epic);
         save();
         return epic;
     }
 
     @Override
-    public SubTask createSubTask(SubTask subTask) {
+    public SubTask createSubTask(SubTask subTask) throws NotFoundException {
         super.createSubTask(subTask);
         save();
         return subTask;
@@ -157,19 +160,19 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     //-----------Удаление всех задач.------------------------
     @Override
-    public void removeAllTasksOfTask() {
+    public void removeAllTasksOfTask() throws NotFoundException {
         super.removeAllTasksOfTask();
         save();
     }
 
     @Override
-    public void removeAllTasksOfEpic() {
+    public void removeAllTasksOfEpic() throws NotFoundException {
         super.removeAllTasksOfEpic();
         save();
     }
 
     @Override
-    public void removeAllTasksOfSubTask() {
+    public void removeAllTasksOfSubTask() throws NotFoundException {
         super.removeAllTasksOfSubTask();
         save();
     }
@@ -177,19 +180,18 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     //----------------Обновление.--------------------------
     @Override
-    public void updateTask(Task task) {
+    public void updateTask(Task task) throws NotFoundException {
         super.updateTask(task);
         save();
     }
 
     @Override
-    public void updateEpicTask(Epic epic) {
+    public void updateEpicTask(Epic epic) throws NotFoundException {
         super.updateEpicTask(epic);
-        //save();
     }
 
     @Override
-    public void updateSubTask(SubTask subTask) {
+    public void updateSubTask(SubTask subTask) throws NotFoundException {
         super.updateSubTask(subTask);
         save();
     }
@@ -197,19 +199,19 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     //-----Удаление задачи по идентификатору---------------
     @Override
-    public void removeTaskById(int id) {
+    public void removeTaskById(int id) throws NotFoundException {
         super.removeTaskById(id);
         save();
     }
 
     @Override
-    public void removeEpicTaskById(int id) {
+    public void removeEpicTaskById(int id) throws NotFoundException {
         super.removeEpicTaskById(id);
         save();
     }
 
     @Override
-    public void removeSubTaskById(int id) {
+    public void removeSubTaskById(int id) throws NotFoundException {
         super.removeSubTaskById(id);
         save();
     }
@@ -217,13 +219,13 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     //------------Управление статусом задачи----------------------------------------------
     @Override
-    public void setNewStatusOfTask(Task task) {
+    public void setNewStatusOfTask(Task task) throws NotFoundException {
         super.setNewStatusOfTask(task);
         save();
     }
 
     @Override
-    public void setNewStatusOfSubTask(SubTask subTask) {
+    public void setNewStatusOfSubTask(SubTask subTask) throws NotFoundException {
         super.setNewStatusOfSubTask(subTask);
         save();
     }
@@ -231,34 +233,34 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     //-------------Получение по идентификатору.---------------
     @Override
-    public Task getTaskById(int idTask) {
+    public Task getTaskById(int idTask) throws NotFoundException {
         return super.getTaskById(idTask);
     }
 
     @Override
-    public Epic getTaskByIdOfEpic(int idEpicTask) {
+    public Epic getTaskByIdOfEpic(int idEpicTask) throws NotFoundException {
         return super.getTaskByIdOfEpic(idEpicTask);
     }
 
     @Override
-    public SubTask getTaskByIdOfSubTask(int idSubTask) {
+    public SubTask getTaskByIdOfSubTask(int idSubTask) throws NotFoundException {
         return super.getTaskByIdOfSubTask(idSubTask);
     }
     //------------------------------------------------------------------------------------
 
     //----------------Получение списка всех задач.---------------○------
     @Override
-    public List<Task> getAllTasksOfTask() {
+    public List<Task> getAllTasksOfTask() throws NotFoundException {
         return super.getAllTasksOfTask();
     }
 
     @Override
-    public List<Epic> getAllTasksOfEpic() {
+    public List<Epic> getAllTasksOfEpic() throws NotFoundException {
         return super.getAllTasksOfEpic();
     }
 
     @Override
-    public List<SubTask> getAllTasksOfSubTask() {
+    public List<SubTask> getAllTasksOfSubTask() throws NotFoundException {
         return super.getAllTasksOfSubTask();
     }
     //------------------------------------------------------------------

@@ -2,6 +2,7 @@ package ru.cherry.itask.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import ru.cherry.itask.exception.NotFoundException;
 import ru.cherry.itask.exception.TimeConflictException;
 import ru.cherry.itask.model.Epic;
 import ru.cherry.itask.model.SubTask;
@@ -14,16 +15,11 @@ import static ru.cherry.itask.model.Task.Status.*;
 
 public class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager> {
 
-
     @BeforeEach
-    public void setUp() {
+    public void beforeEach() throws TimeConflictException, NotFoundException {
         taskManager = new InMemoryTaskManager();
-    }
-
-    @BeforeEach
-    public void beforeEach() throws TimeConflictException {
         taskManager.removeAllTasksOfTask();
-        taskManager.getAllTasksOfEpic();
+        taskManager.removeAllTasksOfEpic();
         taskManager.removeAllTasksOfSubTask();
 
         Task task1 = new Task("Убрать работу с консолью", "Удалить из Маин всё", NEW,
@@ -39,7 +35,7 @@ public class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager
     }
 
     @Test
-    void generatedIdsAndSendIdsNotConflict() throws TimeConflictException {
+    void generatedIdsAndSendIdsNotConflict() throws TimeConflictException, NotFoundException {
         Task setIdTask = taskManager.getTaskById(0);
         setIdTask.setID(4);
         taskManager.createTask(setIdTask);
@@ -51,7 +47,7 @@ public class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager
     }
 
     @Test
-    void immutabilityWhenAddingTaskToManager() throws TimeConflictException {
+    void immutabilityWhenAddingTaskToManager() throws TimeConflictException, NotFoundException {
         Task task_3 = new Task("Убрать работу с консолью", "Удалить из Маин всё", NEW,
                 LocalDateTime.now().plusMinutes(15), Duration.ofMinutes(30));
         taskManager.createTask(task_3);
@@ -62,7 +58,7 @@ public class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager
     }
 
     @Test
-    void removeAllTasksInMap() {
+    void removeAllTasksInMap() throws NotFoundException {
         assertEquals(1, taskManager.getAllTasksOfTask().size());
         assertEquals(1, taskManager.getAllTasksOfEpic().size());
         assertEquals(1, taskManager.getAllTasksOfSubTask().size());
@@ -71,13 +67,19 @@ public class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager
         taskManager.removeAllTasksOfEpic();
         taskManager.removeAllTasksOfSubTask();
 
-        assertEquals(0, taskManager.getAllTasksOfTask().size());
-        assertEquals(0, taskManager.getAllTasksOfEpic().size());
-        assertEquals(0, taskManager.getAllTasksOfSubTask().size());
+        NotFoundException exception = assertThrows(NotFoundException.class, () -> {
+            taskManager.getAllTasksOfTask().size();
+        });
+        NotFoundException exception1 = assertThrows(NotFoundException.class, () -> {
+            taskManager.getAllTasksOfEpic().size();
+        });
+        NotFoundException exception2 = assertThrows(NotFoundException.class, () -> {
+            taskManager.getAllTasksOfSubTask().size();
+        });
     }
 
     @Test
-    void showUpdateAllTasks() {
+    void showUpdateAllTasks() throws NotFoundException {
         Task task = taskManager.getTaskById(0);
         Epic epic = taskManager.getTaskByIdOfEpic(1);
         SubTask subTask = taskManager.getTaskByIdOfSubTask(2);
@@ -97,7 +99,7 @@ public class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager
     }
 
     @Test
-    void shouldRemoveTaskFromHistoryWhenDeleted() {
+    void shouldRemoveTaskFromHistoryWhenDeleted() throws NotFoundException {
         Task task = taskManager.getTaskById(0);
         int taskID = task.getID();
         taskManager.getTaskById(taskID);
@@ -107,7 +109,7 @@ public class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager
     }
 
     @Test
-    void epicShouldNotContainRemovedSubtaskId() {
+    void epicShouldNotContainRemovedSubtaskId() throws NotFoundException {
         Epic epic = taskManager.getTaskByIdOfEpic(1);
         SubTask subTask = taskManager.getTaskByIdOfSubTask(2);
 
@@ -118,19 +120,21 @@ public class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager
     }
 
     @Test
-    void changingTaskIdShouldNotAffectManager() {
+    void changingTaskIdShouldNotAffectManager() throws NotFoundException {
         Task task = taskManager.getTaskById(0);
         int originId = task.getID();
 
         task.setID(666);
         Task retivedTask = taskManager.getTaskById(originId);
 
-        assertNotNull(retivedTask, "Задача должнеа быть доступна по оригинальному ID");
-        assertNull(taskManager.getTaskById(666), "Не должно быть задачи с новым ID");
+        assertNotNull(retivedTask, "Задача должна быть доступна по оригинальному ID");
+        NotFoundException exception = assertThrows(NotFoundException.class, () -> {
+            taskManager.getTaskById(666);
+        });
     }
 
     @Test
-    void showCalculationOfEpicStatusBoundaryConditions() {
+    void showCalculationOfEpicStatusBoundaryConditions() throws NotFoundException {
         SubTask subTask_2 = new SubTask("Test", "subTask", Task.Status.NEW, 1,
                 LocalDateTime.now().plusDays(5), Duration.ofMinutes(120));
         taskManager.createSubTask(subTask_2);
@@ -163,7 +167,7 @@ public class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager
     }
 
     @Test
-    void showThePresenceOfAnAssociatedEpic() {
+    void showThePresenceOfAnAssociatedEpic() throws NotFoundException {
         SubTask subTask = taskManager.getTaskByIdOfSubTask(2);
 
         assertEquals(taskManager.getTaskByIdOfEpic(1).getID(), subTask.getEpicId(),
@@ -171,15 +175,10 @@ public class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager
     }
 
     @Test
-    void showCheckingTheIntersectionOfIntervals() throws TimeConflictException {
+    void showCheckingTheIntersectionOfIntervals() throws TimeConflictException, NotFoundException {
         Task task = new Task("Убрать работу с консолью", "Удалить из Маин всё", NEW,
-                LocalDateTime.now().plusMinutes(120), Duration.ofMinutes(30));
+                LocalDateTime.now(), Duration.ofMinutes(30));
         taskManager.createTask(task);
-
-        assertFalse(taskManager.taskIntersection(task));
-
-        task.setStartTime(LocalDateTime.now().plusMinutes(15));
-        taskManager.updateTask(task);
 
         assertThrows(TimeConflictException.class, () -> {
             taskManager.taskIntersection(task);

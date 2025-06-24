@@ -5,19 +5,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Epic extends Task {
-    private final List<Integer> listSaveSubTasksNum;
-
+    private List<Integer> listSaveSubTasksNum = new ArrayList<>();
     private LocalDateTime endTime;
 
 
     public Epic(String taskName, String details) {
         super(taskName, details, Status.NEW);
-        listSaveSubTasksNum = new ArrayList<>();
+        this.taskType = TaskTypes.EPIC;
+    }
+
+    public Epic() {
+        super("", "", Status.NEW);
         this.taskType = TaskTypes.EPIC;
     }
 
     public List<Integer> getSubtasksIDs() {
-        return new ArrayList<>(listSaveSubTasksNum);
+        if (listSaveSubTasksNum != null) {
+            return new ArrayList<>(listSaveSubTasksNum);
+        } else {
+            return new ArrayList<>();
+        }
     }
 
     public void addSubtaskId(int idSubTask) {
@@ -46,7 +53,11 @@ public class Epic extends Task {
         copy.setStartTime(this.getStartTime());
         copy.setDurationTask(this.getDurationTask());
         copy.setEndTime(this.getEndTime());
-        copy.listSaveSubTasksNum.addAll(this.listSaveSubTasksNum);
+        if (this.listSaveSubTasksNum != null) {
+            copy.listSaveSubTasksNum.addAll(this.listSaveSubTasksNum);
+        } else {
+            return copy;
+        }
         copy.setStatus(this.getStatus());
         return copy;
     }
